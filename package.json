@@ -1,0 +1,33 @@
+{
+  "name": "telcat-js-client",
+  "version": "0.0.1",
+  "description": "a pomelo client wrapper for the TelCatCallServer",
+  "main": "build/telcat-js-client.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AdamBear/telcat-js-client.git"
+  },
+  "keywords": [
+    "pomelo",
+    "jsclient",
+    "websocket",
+    "telcat"
+  ],
+  "author": "AdamBear",
+  "license": "MIT",
+  "devDependencies": {
+    "browserify": "^13.0.0",
+    "component-emitter": "^1.2.0",
+    "uglify-js": "^2.6.2",
+    "pomelo-protobuf": "^0.4.0",
+    "pomelo-protocol": "^0.1.6",
+    "q": "^1.4.1",
+    "pomelo-jsclient-websocket": "git://git@github.com:AdamBear/pomelo-jsclient-websocket.git"
+  },
+  "scripts": {
+    "build": "browserify src/telcat-js-client.js --standalone CallClient > build/telcat-js-client.js & browserify src/telcat-js-client.js --standalone CallClient | uglifyjs > build/telcat-js-client.min.js"
+  },
+  "dependencies": {
+    "ws":"2.3.1"
+  }
+}
