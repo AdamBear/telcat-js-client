@@ -1,15 +1,15 @@
 /**
  * Created by adam on 17-9-13.
  */
+
 if (typeof(window) === 'undefined') {
     global.WebSocket = require('ws');
+    function alert(msg) {
+        console.log("alerted:" + msg);
+    }
+    var CallClient = require('telcat-js-client');
 }
 
-function alert(msg) {
-    console.log("alerted:" + msg);
-}
-
-var CallClient = require('./telcat-js-client.js');
 var callClient = new CallClient(
     {
         '--host':'117.25.156.237',
