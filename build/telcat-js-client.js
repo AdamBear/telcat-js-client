@@ -5929,7 +5929,7 @@ return Q;
         opt = opt || {};
         this.host = opt.host || DEFAULT_GATE_HOST;
         this.port = opt.port || DEFAULT_GATE_PORT;
-        this.username = opt.uid || DEFAULT_USER_ID;
+        this.username = opt.username || DEFAULT_USER_ID;
         this.password = opt.password || '';
         this.type = opt.type || 'browser';
         this.number = opt.number || Date.now();
@@ -5954,11 +5954,11 @@ return Q;
         });
 
         this.pomelo.on("onCall", function (msg) {
-            self.onCall(msg.from, msg.to);
+            self.onCall(msg);
         });
 
         this.pomelo.on("onCallStateChange", function (msg) {
-            self.onCallStateChange(msg.state, msg.number);
+            self.onCallStateChange(msg);
         });
 
         // this.pomelo.once('disconnect', function () {
@@ -6028,13 +6028,23 @@ return Q;
                 password: client.password
             }
         ).then(function (data) {
-            if (data && (data.code === 500)) {
-                client.onError({
-                    msg: "enter the connector server error with uid:" + client.uid,
-                    code: ERROR.ENTRY.USER_NOT_EXIST_OR_WRONG_PASSWORD
-                });
+            if (data) {
+                if(data.code === 200){
+                    return client.onEnter(data)
+                }
+                if(data.code === 500){
+                    client.onError({
+                        msg: "enter the connector server error with uid:" + client.uid,
+                        code: ERROR.ENTRY.USER_NOT_EXIST_OR_WRONG_PASSWORD
+                    })
+                }else{
+                    client.onError({
+                        msg: "enter the connector server error with uid:" + client.uid,
+                        code: ERROR.ENTRY.ENTRY_FAIL,
+                        err: data.error
+                    })
+                };
             }
-            return client.onEnter(data)
         }).catch(function (err) {
             client.onError({
                 msg: "enter the connector server error with uid:" + client.uid,

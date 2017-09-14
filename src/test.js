@@ -7,22 +7,25 @@ if (typeof(window) === 'undefined') {
     function alert(msg) {
         console.log("alerted:" + msg);
     }
-    var CallClient = require('./telcat-js-client');
+    var CallClient = require('./telcat-js-client.js');
 }
 
 var callClient = new CallClient(
     {
-        'host':'117.25.156.237',
-        '--host':'127.0.0.1',
+        '--host':'117.25.156.237',
+        'host':'127.0.0.1',
         port:3014,
-        username: 'test1',
-        password: 'testp',
+        username: '18059240065',
+        password: '123456',
         type: CallClient.CONST.CLIENT_TYPE.BROWSER,
         number: Date.now()
     }
 );
 
 callClient.onError = function (error) {
+    if(error.code === CallClient.ERROR.ENTRY.USER_NOT_EXIST_OR_WRONG_PASSWORD){
+        alert("login failed!");
+    }
     console.error(error);
 };
 
@@ -37,13 +40,20 @@ callClient.onEnter = function (data) {
 };
 
 
-callClient.onCall = function (from, to) {
-    console.log("a call is made from:" + from + " to:" + to);
+callClient.onAdd = function (user) {
+    console.log("a user is joined:" + JSON.stringify(user))
+};
+
+callClient.onLeave = function (user) {
+    console.log("a user is left:" + JSON.stringify(user))
+};
+
+callClient.onCall = function (msg) {
+    console.log("a call is made from:" + msg.from + " to:" + msg.to);
 }
 
-callClient.onCallStateChange = function (state, number) {
-    console.log("call stat changed to:" + state + ", number:" + number);
+callClient.onCallStateChange = function (msg) {
+    console.log("call stat of " + msg.from + " changed to:" + msg.state + ", incomingNumber:" + msg.number);
 }
 
 callClient.init();
-

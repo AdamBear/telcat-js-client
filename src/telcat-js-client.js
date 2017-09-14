@@ -83,11 +83,11 @@
         });
 
         this.pomelo.on("onCall", function (msg) {
-            self.onCall(msg.from, msg.to);
+            self.onCall(msg);
         });
 
         this.pomelo.on("onCallStateChange", function (msg) {
-            self.onCallStateChange(msg.state, msg.number);
+            self.onCallStateChange(msg);
         });
 
         // this.pomelo.once('disconnect', function () {
