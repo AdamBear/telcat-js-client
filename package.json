@@ -1,6 +1,6 @@
 {
   "name": "telcat-js-client",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "a pomelo client wrapper for the TelCatCallServer",
   "main": "build/telcat-js-client.js",
   "repository": {
@@ -12,6 +12,13 @@
     "jsclient",
     "websocket",
     "telcat"
+  ],
+  "maintainers": [
+    {
+      "name": "AdamBear",
+      "email": "adamxiong@126.com",
+      "web": "http://www.weimao.com"
+    }
   ],
   "author": "AdamBear",
   "license": "MIT",

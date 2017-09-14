@@ -7,13 +7,13 @@ if (typeof(window) === 'undefined') {
     function alert(msg) {
         console.log("alerted:" + msg);
     }
-    var CallClient = require('telcat-js-client');
+    var CallClient = require('./telcat-js-client');
 }
 
 var callClient = new CallClient(
     {
-        '--host':'117.25.156.237',
-        'host':'127.0.0.1',
+        'host':'117.25.156.237',
+        '--host':'127.0.0.1',
         port:3014,
         username: 'test1',
         password: 'testp',
@@ -46,3 +46,4 @@ callClient.onCallStateChange = function (state, number) {
 }
 
 callClient.init();
+
