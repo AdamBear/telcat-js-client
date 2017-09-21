@@ -15,8 +15,8 @@ var callClient = new CallClient(
         '--host':'117.25.156.237',
         'host':'127.0.0.1',
         port:3014,
-        username: '18059240065',
-        password: '123456',
+        username: '18150155258',
+        password: '111111',
         type: CallClient.CONST.CLIENT_TYPE.BROWSER,
         number: Date.now()
     }
@@ -31,12 +31,12 @@ callClient.onError = function (error) {
 
 callClient.onEnter = function (data) {
     alert(JSON.stringify(data));
-    callClient.makeCall('11111111', '22222222');
-    callClient.changeCallState(CallClient.CONST.CALL_STATE.IDLE, null);
-
+    callClient.makeCall('18150155258', '12127');
     callClient.getClients(function (clients) {
         console.log("clients:" + JSON.stringify(clients));
     })
+    //callClient.changeCallState(CallClient.CONST.CALL_STATE.IDLE, null);
+    //callClient.sendRecordUrl('18150155258', '12127', 'http://test.com/test.mp3');
 };
 
 
@@ -54,6 +54,10 @@ callClient.onCall = function (msg) {
 
 callClient.onCallStateChange = function (msg) {
     console.log("call stat of " + msg.from + " changed to:" + msg.state + ", incomingNumber:" + msg.number);
+}
+
+callClient.onRecorded = function (msg) {
+    console.log("recorded the call from " + msg.from + " to:" + msg.to + ", url:" + msg.url);
 }
 
 callClient.init();

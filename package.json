@@ -32,6 +32,7 @@
     "pomelo-jsclient-websocket": "git://git@github.com:AdamBear/pomelo-jsclient-websocket.git"
   },
   "scripts": {
+    "test": "node src/test.js",
     "build": "browserify src/telcat-js-client.js --standalone CallClient > build/telcat-js-client.js & browserify src/telcat-js-client.js --standalone CallClient | uglifyjs > build/telcat-js-client.min.js"
   },
   "dependencies": {

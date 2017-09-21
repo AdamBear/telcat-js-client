@@ -252,15 +252,39 @@
         });
     }
 
-    CallClient.prototype.changeCallState = function (state, number, cb) {
+    CallClient.prototype.changeCallState = function (from, state, number, cb) {
         var client = this;
 
         client.log("start request changeCallState state:" + state + " number:" + number);
 
         client.pomelo.request("chat.chatHandler.changeCallState",
             {
+                from: from,
                 state: state,
                 number: number
+            }
+        ).then(function () {
+            return cb && cb('ok');
+        }).catch(function (err) {
+            client.onError({
+                msg: "request changeCallState error with uid:" + client.uid,
+                code: ERROR.CHAT.REQUEST_ERROR,
+                err: err
+            });
+            return cb && cb(null);
+        });
+    }
+
+    CallClient.prototype.sendRecordUrl = function (from, to, url, cb) {
+        var client = this;
+
+        client.log("start request changeCallState state:" + state + " number:" + number);
+
+        client.pomelo.request("chat.chatHandler.changeCallState",
+            {
+                from: from,
+                to: to,
+                url: url
             }
         ).then(function () {
             return cb && cb('ok');
