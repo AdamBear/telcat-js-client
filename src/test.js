@@ -12,8 +12,8 @@ if (typeof(window) === 'undefined') {
 
 var callClient = new CallClient(
     {
-        '--host':'117.25.156.237',
-        'host':'127.0.0.1',
+        'host':'117.25.156.237',
+        '--host':'127.0.0.1',
         port:3014,
         username: '18150155258',
         password: '111111',
@@ -35,8 +35,8 @@ callClient.onEnter = function (data) {
     callClient.getClients(function (clients) {
         console.log("clients:" + JSON.stringify(clients));
     })
-    //callClient.changeCallState(CallClient.CONST.CALL_STATE.IDLE, null);
-    //callClient.sendRecordUrl('18150155258', '12127', 'http://test.com/test.mp3');
+    callClient.changeCallState(CallClient.CONST.CALL_STATE.IDLE, null);
+    callClient.sendRecordUrl('18150155258', '12127', 'http://test.com/test.mp3');
 };
 
 

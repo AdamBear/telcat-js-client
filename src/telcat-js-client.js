@@ -71,6 +71,8 @@
         this.onLeave = opt.onLeave || DEFAULT_EVENT_HANDLER;
         this.onCall = opt.onCall || DEFAULT_EVENT_HANDLER;
         this.onCallStateChange = opt.onCallStateChange || DEFAULT_EVENT_HANDLER;
+        this.onRecorded = opt.onRecorded || DEFAULT_EVENT_HANDLER;
+
         this.pomelo = new pomeloClient();
 
         var self = this;
@@ -90,6 +92,9 @@
             self.onCallStateChange(msg);
         });
 
+        this.pomelo.on("onRecorded", function (msg) {
+            self.onRecorded(msg);
+        });
         // this.pomelo.once('disconnect', function () {
         //     console.log("connection is disconeected");
         // })
@@ -252,6 +257,7 @@
         });
     }
 
+    //移动端使用接口，此处仅用于测试
     CallClient.prototype.changeCallState = function (from, state, number, cb) {
         var client = this;
 
@@ -275,12 +281,13 @@
         });
     }
 
+    //移动端使用接口，此处仅用于测试
     CallClient.prototype.sendRecordUrl = function (from, to, url, cb) {
         var client = this;
 
-        client.log("start request changeCallState state:" + state + " number:" + number);
+        client.log("start request sendRecordUrl from:" + from + " to:" + to + " url:" + url);
 
-        client.pomelo.request("chat.chatHandler.changeCallState",
+        client.pomelo.request("chat.chatHandler.sendRecordUrl",
             {
                 from: from,
                 to: to,
@@ -290,7 +297,7 @@
             return cb && cb('ok');
         }).catch(function (err) {
             client.onError({
-                msg: "request changeCallState error with uid:" + client.uid,
+                msg: "request sendRecordUrl error with uid:" + client.uid,
                 code: ERROR.CHAT.REQUEST_ERROR,
                 err: err
             });
