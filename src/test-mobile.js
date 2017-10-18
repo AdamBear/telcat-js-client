@@ -13,24 +13,33 @@ if (typeof(window) === 'undefined') {
 var gateHost = '127.0.0.1';
 //var gateHost = '117.25.156.237';
 
-var clientType = CallClient.CONST.CLIENT_TYPE.BROWSER;
-//var clientType = CallClient.CONST.CLIENT_TYPE.MOBILE;
+//var clientType = CallClient.CONST.CLIENT_TYPE.BROWSER;
+var clientType = CallClient.CONST.CLIENT_TYPE.MOBILE;
 
 
-//monitorClient.init();
+// var callClient = new CallClient(
+//     {
+//         host: gateHost,
+//         port:3014,
+//         username: '18150155258',
+//         password: '111111',
+//         type: clientType,
+//         '--number': '11111111',
+//         'number': Date.now()
+//     }
+// );
 
 var callClient = new CallClient(
     {
         host: gateHost,
         port:3014,
-        username: '18150155258',
-        password: '111111',
+        username: '18995619667',
+        password: '123123',
         type: clientType,
         '--number': '11111111',
         'number': Date.now()
     }
 );
-
 
 callClient.onError = function (error) {
     if(error.code === CallClient.ERROR.ENTRY.USER_NOT_EXIST_OR_WRONG_PASSWORD){
@@ -43,10 +52,10 @@ callClient.onEnter = function (data) {
     //alert(JSON.stringify(data));
     //callClient.makeCall('18150155258', '10001');
 
-    // callClient.getClients(function (clients) {
-    //     console.log("clients:" + JSON.stringify(clients));
-    // })
-    //callClient.changeCallState(CallClient.CONST.CALL_STATE.IDLE, null);
+    callClient.getClients(function (clients) {
+        console.log("clients:" + JSON.stringify(clients));
+    })
+    callClient.changeCallState(CallClient.CONST.CALL_STATE.IDLE, null);
     //callClient.sendRecordUrl('18150155258', '12127', 'http://test.com/test.mp3');
 };
 
@@ -86,12 +95,11 @@ callClient.onReconnect = function () {
     }, 500)
 }
 
+callClient.init();
 
-callClient.init(true, function () {
-    callClient.sendMessageAll();
-});
-
-
+// for(var i=0; i< 10; i++){
+//     callClient.init();
+// }
 
 // setTimeout(function () {
 //     //callClient.enter();

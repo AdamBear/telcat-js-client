@@ -5897,7 +5897,14 @@ return Q;
         },
         CLIENT_TYPE: {
             BROWSER: 'browser',
-            MOBILE: 'mobile'
+            MOBILE: 'mobile',
+            MONITOR: 'monitor'
+        },
+        SCOPE:{
+            ALL: 'all',
+            COMPANY: 'company',
+            USER: 'user',
+            CLIENT: 'client'
         }
     }
 
@@ -5940,8 +5947,19 @@ return Q;
         this.onEnter = opt.onEnter || DEFAULT_EVENT_HANDLER;
         this.onAdd = opt.onAdd || DEFAULT_EVENT_HANDLER;
         this.onLeave = opt.onLeave || DEFAULT_EVENT_HANDLER;
+        this.onCompanyAdd = opt.onCompanyAdd || DEFAULT_EVENT_HANDLER;
+        this.onCompanyLeave = opt.onCompanyLeave || DEFAULT_EVENT_HANDLER;
+
         this.onCall = opt.onCall || DEFAULT_EVENT_HANDLER;
+        this.onHangUp = opt.onHangUp || DEFAULT_EVENT_HANDLER;
+
         this.onCallStateChange = opt.onCallStateChange || DEFAULT_EVENT_HANDLER;
+        this.onRecorded = opt.onRecorded || DEFAULT_EVENT_HANDLER;
+
+        this.onReconnect = opt.onReconnect || DEFAULT_EVENT_HANDLER;
+        this.onMessage = opt.onMessage || DEFAULT_EVENT_HANDLER;
+
+        this.onKick = opt.onKick || DEFAULT_EVENT_HANDLER;
         this.pomelo = new pomeloClient();
 
         var self = this;
@@ -5953,26 +5971,58 @@ return Q;
             self.onAdd(user);
         });
 
+        this.pomelo.on("onCompanyLeave", function (user) {
+            self.onCompanyLeave(user);
+        });
+
+        this.pomelo.on("onCompanyAdd", function (user) {
+            self.onCompanyAdd(user);
+        });
+
         this.pomelo.on("onCall", function (msg) {
             self.onCall(msg);
+        });
+
+        this.pomelo.on("onHangUp", function (msg) {
+            self.onHangUp(msg);
         });
 
         this.pomelo.on("onCallStateChange", function (msg) {
             self.onCallStateChange(msg);
         });
 
-        // this.pomelo.once('disconnect', function () {
-        //     console.log("connection is disconeected");
-        // })
+        this.pomelo.on("onRecorded", function (msg) {
+            self.onRecorded(msg);
+        });
+
+        this.pomelo.on("onKick", function (msg) {
+            self.onKick(msg);
+        });
+
+        this.pomelo.on("onMessage", function (msg) {
+            self.onMessage(msg);
+        });
+
+        this.pomelo.on("reconnect", function () {
+            self.onReconnect();
+        });
+
+        this.pomelo.on('close', function () {
+            console.log("connection is closed");
+        })
 
         //this.init();
     };
 
     CallClient.prototype.log = function (msg) {
         console.log(msg);
+    };
+
+    CallClient.prototype.disconnect = function () {
+        this.pomelo.disconnect();
     }
 
-    CallClient.prototype.init = function () {
+    CallClient.prototype.init = function (noNeedEnter, cb) {
         this.log("start connect gate server at " + this.host + ":" + this.port);
         var client = this;
 
@@ -5985,7 +6035,7 @@ return Q;
                 if (host) {
                     client.connHost = host;
                     client.connPort = port;
-                    client.reconnect();
+                    client.reconnect(noNeedEnter, cb);
                 }
             })
         }).catch(function (err) {
@@ -5997,7 +6047,7 @@ return Q;
         })
     }
 
-    CallClient.prototype.reconnect = function () {
+    CallClient.prototype.reconnect = function (noNeedEnter,cb) {
         var client = this;
 
         client.log("start connect connector server at " + client.connHost + ":" + client.connPort);
@@ -6007,7 +6057,11 @@ return Q;
             port: client.connPort,
             reconnect: true
         }).then(function () {
-            client.enter();
+            if(!noNeedEnter){
+                client.enter();
+            }else{
+                cb(null);
+            }
         }).catch(function (err) {
             client.onError({
                 msg: "connect the connector sever error at " + client.connHost + ":" + client.connHost,
@@ -6016,6 +6070,28 @@ return Q;
             });
         });
     }
+
+    CallClient.prototype.sendMessageAll = function () {
+        var client = this;
+
+        client.log("start sendMessage from connector server");
+
+        client.pomelo.request("connector.entryHandler.sendMessage",
+            {
+                uid: 'system' + Date.now()
+            }
+        ).then(function (data) {
+            if (data) {
+               console.log("sendMessage return data" + JSON.stringify(data));
+            }
+        }).catch(function (err) {
+            client.onError({
+                msg: "enter the connector server error with uid:" + client.uid,
+                code: ERROR.ENTRY.ENTRY_FAIL,
+                err: err
+            });
+        });
+    };
 
     CallClient.prototype.enter = function () {
         var client = this;
@@ -6079,6 +6155,27 @@ return Q;
         });
     };
 
+    CallClient.prototype.getCompanyClients = function (cb) {
+        var client = this;
+
+        client.log("start request getCompanyUsers");
+
+        client.pomelo.request("chat.chatHandler.getCompanyUserInfos",
+            {
+                uid: client.uid
+            }
+        ).then(function (data) {
+            return cb && cb(data.users);
+        }).catch(function (err) {
+            client.onError({
+                msg: "request getCompanyUserinfos error with uid:" + client.uid,
+                code: ERROR.CHAT.REQUEST_ERROR,
+                err: err
+            });
+            return cb && cb(null);
+        });
+    }
+
     CallClient.prototype.getClients = function (cb) {
         var client = this;
 
@@ -6123,13 +6220,62 @@ return Q;
         });
     }
 
-    CallClient.prototype.changeCallState = function (state, number, cb) {
+    CallClient.prototype.hangUp = function (from, to, cb) {
+        var client = this;
+
+        client.log("start request hangUp from:" + from + " to:" + to);
+
+        client.pomelo.request("chat.chatHandler.hangUp",
+            {
+                uid: client.uid,
+                from: from,
+                to: to
+            }
+        ).then(function () {
+            return cb && cb('ok');
+        }).catch(function (err) {
+            client.onError({
+                msg: "request makeCall error with uid:" + client.uid,
+                code: ERROR.CHAT.REQUEST_ERROR,
+                err: err
+            });
+            return cb && cb(null);
+        });
+    }
+
+    CallClient.prototype.sendMessage = function (msg, target, scope, type, cb) {
+        var client = this;
+
+        client.log("start sendMessage to target:" + target + " scope:" + scope + " type:" + type);
+
+        client.pomelo.request("chat.chatHandler.sendMessage",
+            {
+                msg: msg,
+                target: target,
+                scope: scope,
+                type: type
+            }
+        ).then(function () {
+            return cb && cb('ok');
+        }).catch(function (err) {
+            client.onError({
+                msg: "sendMessage error with uid:" + client.uid,
+                code: ERROR.CHAT.REQUEST_ERROR,
+                err: err
+            });
+            return cb && cb(null);
+        });
+    }
+
+    //移动端使用接口，此处仅用于测试
+    CallClient.prototype.changeCallState = function (from, state, number, cb) {
         var client = this;
 
         client.log("start request changeCallState state:" + state + " number:" + number);
 
         client.pomelo.request("chat.chatHandler.changeCallState",
             {
+                from: from,
                 state: state,
                 number: number
             }
@@ -6138,6 +6284,30 @@ return Q;
         }).catch(function (err) {
             client.onError({
                 msg: "request changeCallState error with uid:" + client.uid,
+                code: ERROR.CHAT.REQUEST_ERROR,
+                err: err
+            });
+            return cb && cb(null);
+        });
+    }
+
+    //移动端使用接口，此处仅用于测试
+    CallClient.prototype.sendRecordUrl = function (from, to, url, cb) {
+        var client = this;
+
+        client.log("start request sendRecordUrl from:" + from + " to:" + to + " url:" + url);
+
+        client.pomelo.request("chat.chatHandler.sendRecordUrl",
+            {
+                from: from,
+                to: to,
+                url: url
+            }
+        ).then(function () {
+            return cb && cb('ok');
+        }).catch(function (err) {
+            client.onError({
+                msg: "request sendRecordUrl error with uid:" + client.uid,
                 code: ERROR.CHAT.REQUEST_ERROR,
                 err: err
             });
