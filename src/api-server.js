@@ -34,13 +34,23 @@ app.get('/index/', function (req, res) {
 app.post('/index/', function (req, res) {
     res.set({'Content-Type': 'text/json', 'Encodeing': 'utf8'});
 
-    var item = req.body.body;
-    // console.log(item);
-    var msg = JSON.parse(item);
+    try{
+        var item = req.body.body;
+        var target = req.body.target;
+
+        if(!target){
+            res.send({status: "error", msg:"请求参数错误, target是必要参数"});
+            return;
+        }
+        var msg = JSON.parse(item);
+    }catch(e){
+        res.send({status: "error", msg:"请求参数错误", err: err});
+        return;
+    }
     msg.route = "onMessage";
 
     // pomeloAdmin客户端连接服务器
-    client.request('channelMonitor', {type: "channelMonitor", method:'sendMessage', msg:msg}, function (err, msg) {
+    client.request('channelMonitor', {type: "channelMonitor", method:'sendMessage', target:target, msg:msg}, function (err, msg) {
         if (err) {
             res.send({status: "error", err: err});
             return;
