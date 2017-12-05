@@ -56,6 +56,9 @@ callClient.onEnter = function (data) {
         console.log("clients:" + JSON.stringify(clients));
     })
     callClient.changeCallState(CallClient.CONST.CALL_STATE.IDLE, null);
+    callClient.updateOnline(function () {
+        console.log("update online state!");
+    });
     //callClient.sendRecordUrl('18150155258', '12127', 'http://test.com/test.mp3');
 };
 

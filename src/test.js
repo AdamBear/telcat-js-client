@@ -26,6 +26,7 @@ var callClient = new CallClient(
         username: '18150155258',
         password: '111111',
         type: clientType,
+        modal: 'Vivo X11',
         '--number': '11111111',
         'number': Date.now()
     }

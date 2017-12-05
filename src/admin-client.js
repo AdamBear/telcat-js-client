@@ -3,7 +3,7 @@
  *  通过pomeloAdmin，模拟客户端向服务器发起请求，通过pomeloAdmin跳转到相应的handler处理，验证服务器端函数的有效性
  */
 // 引用pomelo-admin模块
-var adminClient = require('pomelo-admin').adminClient;
+var adminClient = require('./pomelo-admin').adminClient;
 
 // 具体的pomelo服务器host、port配置
 var config = {

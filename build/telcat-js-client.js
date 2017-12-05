@@ -5943,6 +5943,10 @@ return Q;
 
         this.uid = this.username + "<-->" + this.type + "<-->" + this.number;
 
+        if(opt.modal){
+            this.uid = this.username + "<-->" + this.type + "<-->" + this.number  + "<-->" + opt.modal;
+        }
+
         this.onError = opt.onError || DEFAULT_ERROR_HANDLER;
         this.onEnter = opt.onEnter || DEFAULT_EVENT_HANDLER;
         this.onAdd = opt.onAdd || DEFAULT_EVENT_HANDLER;
@@ -6197,7 +6201,7 @@ return Q;
         });
     }
 
-    CallClient.prototype.makeCall = function (from, to, cb) {
+    CallClient.prototype.makeCall = function (from, to, cid, cb) {
         var client = this;
 
         client.log("start request makeCall from:" + from + " to:" + to);
@@ -6206,7 +6210,8 @@ return Q;
             {
                 uid: client.uid,
                 from: from,
-                to: to
+                to: to,
+                cid:cid
             }
         ).then(function () {
             return cb && cb('ok');
@@ -6308,6 +6313,28 @@ return Q;
         }).catch(function (err) {
             client.onError({
                 msg: "request sendRecordUrl error with uid:" + client.uid,
+                code: ERROR.CHAT.REQUEST_ERROR,
+                err: err
+            });
+            return cb && cb(null);
+        });
+    }
+
+    //移动端使用接口，此处仅用于测试
+    CallClient.prototype.updateOnline = function (cb) {
+        var client = this;
+
+        client.log("start request updateOnline");
+
+        client.pomelo.request("chat.chatHandler.updateOnline",
+            {
+
+            }
+        ).then(function () {
+            return cb && cb('ok');
+        }).catch(function (err) {
+            client.onError({
+                msg: "request updateOnline error with uid:" + client.uid,
                 code: ERROR.CHAT.REQUEST_ERROR,
                 err: err
             });

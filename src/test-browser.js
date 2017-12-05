@@ -10,10 +10,20 @@ if (typeof(window) === 'undefined') {
     var CallClient = require('./telcat-js-client.js');
 }
 
-var gateHost = '127.0.0.1';
-// var gateHost = '117.25.156.237';
+//var gateHost = '127.0.0.1';
+//var gateHost = '117.25.156.237';
+var gateHost = '117.25.145.165';
+
+var options = process.argv;
+console.log(options);
 
 var clientType = CallClient.CONST.CLIENT_TYPE.BROWSER;
+
+if(options[2]){
+    if(options[2].toLocaleString() === "mobile"){
+        var clientType = CallClient.CONST.CLIENT_TYPE.MOBILE;
+    }
+}
 
 function createCallClient() {
     var callClient = new CallClient(
@@ -23,6 +33,7 @@ function createCallClient() {
             username: '18150155258',
             password: '111111',
             type: clientType,
+            modal: 'Vivo X11',
             '--number': '11111111',
             'number': Date.now()
         }
@@ -37,16 +48,26 @@ function createCallClient() {
 
     callClient.onEnter = function (data) {
         alert(JSON.stringify(data));
-        callClient.makeCall('18150155258', '10001');
+        callClient.sendMessage({type:"test"},null,"user", "mobile");
 
-        callClient.getClients(function (clients) {
-            console.log("clients:" + JSON.stringify(clients));
-        })
-        callClient.getCompanyClients(function (clients) {
-            console.log("company clients:" + JSON.stringify(clients));
-        })
-        callClient.changeCallState('18150155258', CallClient.CONST.CALL_STATE.IDLE, null);
-        callClient.sendRecordUrl('18150155258', '12127', 'http://test.com/test.mp3');
+        if(clientType === CallClient.CONST.CLIENT_TYPE.MOBILE){
+            callClient.makeCall('18150155258', '10001', '1110123123');
+            callClient.changeCallState('18150155258', CallClient.CONST.CALL_STATE.IDLE, null);
+            callClient.updateOnline(function () {
+                console.log("update online state!");
+            });
+        }
+
+        // callClient.getClients(function (clients) {
+        //     console.log("clients:" + JSON.stringify(clients));
+        // })
+        // callClient.getCompanyClients(function (clients) {
+        //     console.log("company clients:" + JSON.stringify(clients));
+        // })
+        //
+        // callClient.sendRecordUrl('18150155258', '12127', 'http://test.com/test.mp3');
+
+
     };
 
     callClient.onMessage = function (msg) {
@@ -103,7 +124,7 @@ function createCallClient() {
 
 
 
-var retryTimes = 3;
+var retryTimes = 1;
 var retryFunc = function () {
     retryTimes--;
     if(retryTimes <0) return;
