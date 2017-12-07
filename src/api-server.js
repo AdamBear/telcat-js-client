@@ -69,7 +69,7 @@ app.post('/index/', function (req, res) {
         });
     }catch(e){
         console.error(e);
-        res.send({status: "server failed", message: e});
+        //res.send({status: "server failed", message: e});
     }
 
 });
